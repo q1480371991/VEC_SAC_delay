@@ -8,7 +8,7 @@ from RL_train5 import SAC_Trainer
 from RL_train5 import ReplayBuffer
 
 # -------------------------- 场景参数配置 --------------------------
-draw_flag=False
+draw_flag=True
 # 基站（BS）宽度（单位：米，除以2是为了坐标计算）
 BS_width = 1000/2
 # 定义道路车道的坐标（上下左右四个方向，每个方向4条车道）
@@ -191,7 +191,7 @@ def SAC_train(ii):
             h_i_dB= env.overall_channel()
             # 计算每辆车到RSU的传输能量
             trans_energy_RSU = env.trans_energy_RSU(action_pf, h_i_dB)
-            # 计算总能量消耗、奖励、过载量、负载率、时延等
+            # 计算总能量消耗、奖励、过载量、卸载率、时延等
             #comp_n_list_true车辆在当前时间片内实际能处理的任务个数(单位：个)   offload_num每辆车计划卸载到 RSU（路侧单元）的任务数量(单位：个)
             E_total, reward_tot, overload, load_rate_0,Delay_vel  = env.RSU_reward1(action_pf, comp_n_list_true, trans_energy_RSU, offload_num)
             # 记录过载率（过载量/总任务量）
@@ -260,8 +260,8 @@ def save_results(name, index, E_total, reward, calculate, overload, eta1, load_r
     :param reward: 每轮奖励列表
     :param calculate: 每轮计算量列表
     :param overload: 每轮过载量列表
-    :param eta1: 每路过载率列表
-    :param load_rate_0: 每轮负载率列表
+    :param eta1: 每轮过载率列表
+    :param load_rate_0: 每轮卸载率率列表
     :param delay: 每轮时延列表
     """
     # 创建保存目录（如log/SAC_1/）
@@ -293,7 +293,7 @@ def save_results(name, index, E_total, reward, calculate, overload, eta1, load_r
         '计算量': calculate,
         '过载量': overload,
         '过载率': eta1,
-        '负载率': load_rate_0,
+        '卸载率': load_rate_0,
         '时延':delay
     }
     x = np.arange(len(E_total))  # 横轴为训练轮次（episode）
