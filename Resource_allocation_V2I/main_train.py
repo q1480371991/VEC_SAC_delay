@@ -2,13 +2,22 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+
+from Resource_allocation_V2I import dataStruct
+
 os.environ["KMP_DUPLICATE_LIB_OK"]='TRUE'
 import Environment3
 from RL_train5 import SAC_Trainer
 from RL_train5 import ReplayBuffer
 
+"""Time slot related."""
+time_slot_start: int = 0
+time_slot_end: int = 299
+time_slot_number: int = 300
+time_slot_length: int = 1
+
 # -------------------------- 场景参数配置 --------------------------
-draw_flag=True
+draw_flag=False
 # 基站（BS）宽度（单位：米，除以2是为了坐标计算）
 BS_width = 1000/2
 # 定义道路车道的坐标（上下左右四个方向，每个方向4条车道）
@@ -49,7 +58,7 @@ memory_size = 1000000# 经验回放缓冲区的最大容量
 
 n_step_per_episode = 100# 每轮训练的步数
 # n_episode_test = 3000  # 总训练轮数（大循环次数）
-n_episode_test = 1000  #原论文为3000
+n_episode_test = 5  #原论文为3000
 n_interference_vehicle = 0# 干扰车辆数量（当前设置为0，无干扰）
 n_veh =5 # 车辆数量
 
@@ -125,14 +134,17 @@ def SAC_train(ii):
             print('A')
         print('------ SAC/Episode', i_episode, '------')
         # 初始化新一轮的环境（随机生成车辆初始位置等）
+        # env.new_random_game()
+
+        # 初始化新一轮的环境（读取CSV文件数据生成车辆初始位置等）
         env.new_random_game()
 
         if draw_flag:draw(env)
 
         # 记录当前轮所有车辆的初始位置
-        for i in range(n_veh):
-            Vehicle_positions_x[i].append(env.vehicles[i].start_position[0])
-            Vehicle_positions_y[i].append(env.vehicles[i].start_position[1])
+        # for i in range(n_veh):
+        #     Vehicle_positions_x[i].append(env.vehicles[i].start_position[0])
+        #     Vehicle_positions_y[i].append(env.vehicles[i].start_position[1])
         # 存储当前状态（初始状态）
         state_old_all = []
         # 存储当前轮的指标（每步的累加）
@@ -149,9 +161,16 @@ def SAC_train(ii):
         Sum_delay_per_episode = []  # 时延列表
 
         eta1 = [] # 每步的过载率
-        for i_step in range(n_step_per_episode):
+
+        time_slots: dataStruct.timeSlots = dataStruct.timeSlots(
+            start=time_slot_start,
+            end=time_slot_end,
+            slot_length=time_slot_length,
+        )
+        while(not time_slots.is_end()):
+        # for i_step in range(time_slots.get_number()):
             # 更新车辆位置（模拟车辆移动）
-            env.renew_position()
+            # env.renew_position()
 
             if draw_flag:draw(env)
 
@@ -188,7 +207,7 @@ def SAC_train(ii):
                 offload_num_i = int(action_pf[i, 2]*comp_n_list_RSU)#第 i 辆车的卸载比例（取值范围为 [0, 1]）
                 offload_num.append(offload_num_i)
             # 计算每辆车信道增益（dB）
-            h_i_dB= env.overall_channel()
+            h_i_dB= env.overall_channel(time_slots.now())
             # 计算每辆车到RSU的传输能量
             trans_energy_RSU = env.trans_energy_RSU(action_pf, h_i_dB)
             # 计算总能量消耗、奖励、过载量、卸载率、时延等
@@ -228,6 +247,8 @@ def SAC_train(ii):
                                       target_entropy=-1.*n_output) # 目标熵（与动作维度相关）
             # 更新状态（进入下一步）
             state_old_all = state_new_all
+
+            time_slots.add_time()
         # 记录当前轮的平均指标
         Sum_E_total_list.append((np.mean(Sum_E_total_per_episode)))
         Sum_reward_list.append((np.mean(Sum_reward_per_episode)))
@@ -239,12 +260,17 @@ def SAC_train(ii):
 
         Sum_delay_list.append(np.mean(Sum_delay_per_episode))
 
+
+
         print('Sum_energy_per_episode:', round(np.average(Sum_E_total_per_episode), 6))
         print('Sum_reward_per_episode:', round(np.average(Sum_reward_per_episode), 6))
         print('Sum_calculate_per_episode:', round(np.average(Sum_calculate_per_episode)))
         print('Sum_overload_rate_per_episode:', round(np.average(eta1), 6))
         print('Sum_load_rate_0_episode:', round(np.average(Sum_load_rate_0_episode),6))
         print('Sum_delay_per_episode:', round(np.average(Sum_delay_per_episode), 6))
+
+
+
     # 训练结束后保存模型参数
     RL_SAC.save_model(model_path)
 

@@ -1,15 +1,57 @@
 from __future__ import division
+
+import dataclasses
+from typing import List, Optional
+
 import numpy as np
 import random
 import math
+import dataStruct
+
 from beta_allocation import BetaAllocation
 
+"""Time slot related."""
+time_slot_start: int = 0
+time_slot_end: int = 299
+time_slot_number: int = 300
+time_slot_length: int = 1
+
+"""Vehicle related."""
+vehicle_number: Optional[int] = 5
+trajectories_file_name: str = './CSV/trajectories_20161116_2300_2305'
+task_request_rate: float = 1
+vehicle_seeds: List[int] = dataclasses.field(default_factory=list)
+vehicle_seeds = [i for i in range(5)]
+
+"""Task related."""
+task_number: int = 100
+task_minimum_data_size: float = 0.01 * 1024 * 1024 * 8 # 1 MB
+task_maximum_data_size: float = 5 * 1024 * 1024 * 8 # 5 MB
+task_minimum_computation_cycles: float = 500
+task_maximum_computation_cycles: float = 500 # CPU cycles for processing 1-bit of data
+task_minimum_delay_thresholds: float = 5 # seconds
+task_maximum_delay_thresholds: float = 10 # seconds
+task_seed: int = 0
+
+""""Edge related."""
+edge_number: int = 1
+# edge_number: int = 9
+edge_power: float = 1000.0 # mW
+edge_bandwidth: float = 20.0  # MHz
+edge_minimum_computing_cycles: float = 3.0 * 1e9 # 3 GHz
+edge_maximum_computing_cycles: float = 10.0 * 1e9 # 10 GHz
+communication_range: float = 500.0  # meters
+map_length: float = 3000.0  # meters
+map_width: float = 3000.0  # meters
+edge_seed: int = 0
 
 
 n_elements_total = 4# 总元素数量
 n_elements = 4# 元素数量
 t_trans_max =5# 最大传输时间
-RSU_position = [250, 250] # RSU（路侧单元）的位置坐标
+# RSU_position = [250, 250] # RSU（路侧单元）的位置坐标
+
+RSU_position = [500, 500] # 根据CSV数据的edge坐标
 
 
 class V2Ichannels:
@@ -28,11 +70,14 @@ class V2Ichannels:
                 :param position_A: 车辆的位置坐标 [x, y]
                 :return: 路径损耗值（单位：dB）
         """
+        RSU_location= dataStruct.location(x=RSU_position[0],y=RSU_position[1])
+        distance=position_A.get_distance(RSU_location)
+
         # 计算车辆与RSU在x和y方向上的距离差
-        d1 = abs(position_A[0] - RSU_position[0])
-        d2 = abs(position_A[1] - RSU_position[1])
-        # 计算直线距离
-        distance = math.hypot(d1, d2)
+        # d1 = abs(position_A.get_x - RSU_position[0])
+        # d2 = abs(position_A.get_y - RSU_position[1])
+        # # 计算直线距离
+        # distance = math.hypot(d1, d2)
         # 路径损耗模型公式（基于3GPP标准模型）
         return 128.1 + 37.6 * np.log10(math.sqrt(distance ** 2 + (self.h_bs - self.h_ms) ** 2) / 1000)
 
@@ -64,6 +109,7 @@ class Vehicle:
 class Environ:
     """环境类，用于模拟车辆行驶环境和通信场景"""
     def __init__(self, down_lane, up_lane, left_lane, right_lane, width, height, n_veh, n_interference_vehicle, BS_width):
+        self.time_slots: Optional[dataStruct.timeSlots] = None
         # 车道定义
         self.down_lanes = down_lane # 下行车道
         self.up_lanes = up_lane# 上行车道
@@ -88,6 +134,7 @@ class Environ:
 
         self.n_veh = n_veh # 车辆数量
         self.V2Ichannels = V2Ichannels()# 实例化V2I信道模型
+        self.vehicle_list=[]
         self.vehicles = []# 车辆列表
 
         # 存储各类信息的列表
@@ -315,7 +362,7 @@ class Environ:
             # 计算路径损耗（dB为单位）
             self.V2I_pathloss[i] = self.V2Ichannels.get_path_loss(self.vehicles[i].start_position)
             # 记录车辆速度
-            self.vel_v[i] = self.vehicles[i].velocity
+            # self.vel_v[i] = self.vehicles[i].velocity
         # 计算综合信道功率（W为单位）：路径损耗转换为线性功率
         self.V2I_overall_W = 1/np.abs(1/np.power(10, self.V2I_pathloss / 10))  # W为单位
         # 综合信道幅度（dB）：包含阴影衰落
@@ -324,7 +371,7 @@ class Environ:
 
         return self.V2I_channels_abs
 
-    def overall_channel(self):
+    def overall_channel(self,now_timeslot):
         """与overall_channel_vel_RSU功能完全相同，可能为冗余实现"""
         """计算车辆与RSU之间的综合信道特性（包含路径损耗和阴影衰落）"""
         # 初始化路径损耗、车辆速度、信道幅度数组
@@ -336,9 +383,9 @@ class Environ:
         # 遍历所有车辆计算路径损耗和速度
         for i in range(len(self.vehicles)):  # 计算n辆车的路径损失
             # 计算路径损耗（dB为单位）
-            self.V2I_pathloss[i] = self.V2Ichannels.get_path_loss(self.vehicles[i].start_position)
+            self.V2I_pathloss[i] = self.V2Ichannels.get_path_loss(self.vehicles[i].get_vehicle_location(now_timeslot))
             # 记录车辆速度
-            self.vel_v[i] = self.vehicles[i].velocity
+            # self.vel_v[i] = self.vehicles[i].velocity
         # 将路径损耗（dB）转换为线性功率衰减因子（W）
         self.V2I_overall_W = 1/np.abs(1/np.power(10, self.V2I_pathloss / 10))  # W为单位
         # 综合路径损耗和阴影衰落，转换为dB单位的信道增益
@@ -512,6 +559,26 @@ class Environ:
 
         return E_total, tran_success, c_total, reward, comp_n_list
 
+    def init_time_slots(self):
+        self.time_slots: dataStruct.timeSlots = dataStruct.timeSlots(
+            start=time_slot_start,
+            end=time_slot_end,
+            slot_length=time_slot_length,
+        )
+    def generate_vehicles_by_number(self):
+
+        self.vehicle_list: dataStruct.vehicleList = dataStruct.vehicleList(
+            edge_number=edge_number,
+            communication_range=communication_range,
+            vehicle_number=self.n_veh,
+            time_slots=self.time_slots,
+            trajectories_file_name=trajectories_file_name,
+            slot_number=time_slot_number,
+            task_number=task_number,
+            task_request_rate=task_request_rate,
+            seeds=vehicle_seeds,
+        )
+        self.vehicles=self.vehicle_list.get_vehicle_list()
     def new_random_game(self, n_veh=0):
         """初始化新的模拟场景"""
         # 清空车辆列表和干扰车辆列表
@@ -521,9 +588,16 @@ class Environ:
         if n_veh > 0:
             self.n_veh = n_veh
         # 添加指定数量的新车辆
-        self.add_new_vehicles_by_number(self.n_veh)
+        # self.add_new_vehicles_by_number(self.n_veh)
+
+        #初始化时间隙
+        self.init_time_slots()
+
+        #根据CSV文件生成车辆
+        self.generate_vehicles_by_number()
+
         # 计算信道特性
-        self.overall_channel()
+        self.overall_channel(0)#初始化时 时隙为0
         # 更新快衰落
         self.renew_channel_fastfading()
         # 初始化任务缓冲池为0
