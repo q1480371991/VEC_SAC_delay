@@ -58,7 +58,7 @@ memory_size = 1000000# 经验回放缓冲区的最大容量
 
 n_step_per_episode = 100# 每轮训练的步数
 # n_episode_test = 3000  # 总训练轮数（大循环次数）
-n_episode_test = 5  #原论文为3000
+n_episode_test = 1000  #原论文为3000
 n_interference_vehicle = 0# 干扰车辆数量（当前设置为0，无干扰）
 n_veh =5 # 车辆数量
 
@@ -119,7 +119,7 @@ def SAC_train(ii):
     Sum_calculate_list = []# 总计算任务量列表
     Sum_overload_list = []# 总过载量列表
 
-    Sum_eta1_list = []# 过载率列表
+    Sum_eta1_list = []# 资源浪费率列表
     Sum_load_rate_0_episode_list = []# 负载率列表
 
     Sum_delay_list=[]# 总时延列表
@@ -154,13 +154,13 @@ def SAC_train(ii):
         Sum_E_total_per_episode = []#能量消耗列表
         Sum_reward_per_episode = []#奖励列表
         Sum_calculate_per_episode = []#计算任务量列表
-        Sum_overload_per_episode = []#过载量列表
+        Sum_overload_per_episode = []#资源浪费量列表
 
         Sum_load_rate_0_episode = []# 负载率列表
 
         Sum_delay_per_episode = []  # 时延列表
 
-        eta1 = [] # 每步的过载率
+        eta1 = [] # 每步的资源浪费率
 
         time_slots: dataStruct.timeSlots = dataStruct.timeSlots(
             start=time_slot_start,
@@ -210,10 +210,10 @@ def SAC_train(ii):
             h_i_dB= env.overall_channel(time_slots.now())
             # 计算每辆车到RSU的传输能量
             trans_energy_RSU = env.trans_energy_RSU(action_pf, h_i_dB)
-            # 计算总能量消耗、奖励、过载量、卸载率、时延等
+            # 计算总能量消耗、奖励、资源浪费量、卸载率、时延等
             #comp_n_list_true车辆在当前时间片内实际能处理的任务个数(单位：个)   offload_num每辆车计划卸载到 RSU（路侧单元）的任务数量(单位：个)
             E_total, reward_tot, overload, load_rate_0,Delay_vel  = env.RSU_reward1(action_pf, comp_n_list_true, trans_energy_RSU, offload_num)
-            # 记录过载率（过载量/总任务量）
+            # 记录资源浪费率（资源浪费量/总任务量）
             eta1.append(overload/sum(comp_n_list))
             # 处理负载率为空的情况（默认设为1）
             if load_rate_0==[]:
@@ -286,7 +286,7 @@ def save_results(name, index, E_total, reward, calculate, overload, eta1, load_r
     :param reward: 每轮奖励列表
     :param calculate: 每轮计算量列表
     :param overload: 每轮过载量列表
-    :param eta1: 每轮过载率列表
+    :param eta1: 每轮资源浪费率列表
     :param load_rate_0: 每轮卸载率率列表
     :param delay: 每轮时延列表
     """
@@ -300,13 +300,13 @@ def save_results(name, index, E_total, reward, calculate, overload, eta1, load_r
 
     # 1. 保存原始数据（pickle格式）
     data = {
-        'Sum_E_total': E_total,
-        'Sum_reward': reward,
-        'Sum_calculate': calculate,
-        'Sum_overload': overload,
-        'Sum_eta1': eta1,
-        'Sum_load_rate_0': load_rate_0,
-        'Sum_delay':delay
+        'Sum_E_total': E_total,#能量消耗
+        'Sum_reward': reward,#奖励
+        'Sum_calculate': calculate,#计算量
+        'Sum_overload': overload,#过载量
+        'Sum_eta1': eta1,#资源浪费率
+        'Sum_load_rate_0': load_rate_0,#卸载率
+        'Sum_delay':delay#时延
     }
     with open(f'{log_dir}/{name}_data_{index}.pkl', 'wb') as f:
         pickle.dump(data, f)
@@ -318,7 +318,7 @@ def save_results(name, index, E_total, reward, calculate, overload, eta1, load_r
         '奖励': reward,
         '计算量': calculate,
         '过载量': overload,
-        '过载率': eta1,
+        '资源浪费率': eta1,
         '卸载率': load_rate_0,
         '时延':delay
     }
