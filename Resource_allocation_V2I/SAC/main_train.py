@@ -100,7 +100,7 @@ beta = 0.001# 可能为其他损失项的系数
 tau = 0.05# 目标网络软更新系数
 pp = 0.005 # 可能为惩罚系数
 
-current_time = datetime.now().strftime('"%Y%m%d_%H%M"')
+current_time = datetime.now().strftime('%Y%m%d_%H%M')
 def SAC_train(ii):
     """
         SAC算法训练函数：初始化环境、模型和缓冲区，执行多轮训练，返回训练指标。

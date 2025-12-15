@@ -168,6 +168,8 @@ class PolicyNetwork(nn.Module):
 
     def evaluate(self, state, epsilon=1e-6):
         '''
+        在 update 中，策略损失为 E[α log π(a|s) − min(Q1, Q2)(s, a)]，这里的 log π(a|s) 就由 evaluate 返回
+
         生成基于当前策略的采样动作，并计算动作的对数概率（用于训练时的梯度计算）
         采用重参数化技巧（reparameterization trick）减少方差
         '''
@@ -205,9 +207,9 @@ class PolicyNetwork(nn.Module):
         state = torch.FloatTensor(state).unsqueeze(0).to(device) # 转换状态为张量并添加批次维度
         state = state.reshape(-1, state.size()[1])  #不管进来的state是什么维度，这一步将state第二维调整为8 调整状态维度（确保第二维为状态维度）
         mean, log_std = self.forward(state)
-        std = log_std.exp()
+        std = log_std.exp()# 标准差（指数化对数标准差）
 
-        normal = Normal(0, 1)
+        normal = Normal(0, 1)#高斯分布
         z = normal.sample(mean.shape).to(device)
         action = self.action_range * torch.tanh(mean + std * z)# 随机采样动作
         # 如果是确定性模式，直接使用均值的tanh作为动作（无探索噪声）
@@ -264,7 +266,7 @@ class SAC_Trainer():
                 target_entropy：目标熵（用于alpha更新）
                 gamma：折扣因子
                 soft_tau：目标网络软更新系数
-                """
+        """
         # 从缓冲区采样数据
         state, action, reward, next_state, done = self.replay_buffer.sample(batch_size)
         # print('sample:', state, action,  reward, done)
