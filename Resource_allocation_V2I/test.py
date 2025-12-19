@@ -125,12 +125,16 @@ def visualize_sampling_process():
 # visualize_sampling_process()
 
 if __name__ == "__main__":
-    n_veh = 5
-    vehicles = [_ for _ in range(n_veh)]
+    t = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
 
-    test=[0.999,       0.999    ,   0.999    , -0.999    ,  -0.999     ,  0.99300045,
-  0.999   ,   -0.999     ,  0.999     , -0.999    ,   0.999    ,   0.999,
- -0.999   ,   -0.14995956 ,-0.999     ]
+    # 访问第一行
+    first_row = t[0]
+    print(f"\n第一行: {first_row}")  # 输出: tensor([1, 2, 3])
 
-    hist_action_1d = np.array(test)
-    print(hist_action_1d)
+    # 访问所有行和第二列
+    second_col = t[:, 1]
+    print(f"第二列: {second_col}")  # 输出: tensor([2, 5, 8])
+
+    # 访问右下角的 2x2 子矩阵
+    sub_matrix = t[1:, 1:]
+    print(f"右下角子矩阵:\n {sub_matrix}")
