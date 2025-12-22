@@ -61,7 +61,7 @@ class DiffusionPolicyWrapper(torch.nn.Module):
 
             init_x=z
 
-            # 反映射到未压缩空间
+            # 反映射到未压缩空间   不需要反映射，因为传进来的action还没有映射到 [-action_range, action_range]，只是裁剪到[-0.999, 0.999]（避免极端值）
             # init_x = self.atanh(z)
 
         x0 = self.diff.sample(state, init_x=init_x, noise_scale=noise_scale)

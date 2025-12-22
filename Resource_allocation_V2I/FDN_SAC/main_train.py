@@ -211,7 +211,7 @@ def SAC_train(ii):
             offload_num = []
             for i in range(n_veh):
                 # 计算车辆卸载到RSU的任务数
-                offload_num_i = int(action_pf[i, 2]*comp_n_list_RSU)#第 i 辆车的卸载比例（取值范围为 [0, 1]）
+                offload_num_i = int(action_pf[i, 2]*comp_n_list_RSU)
                 offload_num.append(offload_num_i)
             # 计算每辆车信道增益（dB）
             h_i_dB= env.overall_channel(time_slots.now())

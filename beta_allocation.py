@@ -31,7 +31,7 @@ class BetaAllocation:
 
     def true_calculate_times(self, p_f):
         # 计算每个车辆的真实计算次数和理论计算次数
-        # p_f为包含功率和频率的列表，每个元素为[功率, 频率]
+        # p_f为包含功率和频率的列表，每个元素为[功率, cpu频率，rsu分配cpu比例]
         list_num_true = [] # 存储真实计算次数
         list_num = []# 存储理论计算次数
         for i in range(self.n_veh):
