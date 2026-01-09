@@ -517,7 +517,9 @@ class Environ:
         #源代码 不考虑时延
         # reward_tot = 10 * sum(E_total) + cf * sum(overload) + 0.01 * sum(self.ReplayB_v)
         # 总奖励计算：能量消耗惩罚 + 过载惩罚 + 剩余缓冲任务惩罚       +时延
-        reward_tot = 10*sum(E_total) + cf * sum(overload) + 0.01 * sum(self.ReplayB_v)+delay_penalty
+        # reward_tot = 10*sum(E_total) + cf * sum(overload) + 0.01 * sum(self.ReplayB_v)+delay_penalty
+
+        reward_tot = 10 * sum(E_total) + 0.01 * sum(self.ReplayB_v) + delay_penalty
 
         # # 新增：将时延纳入奖励（惩罚大时延）
         # delay_penalty = 1 * sum(Delay_vel)  # 时延惩罚系数，可调整

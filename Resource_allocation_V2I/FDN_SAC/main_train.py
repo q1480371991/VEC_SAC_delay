@@ -160,7 +160,7 @@ def SAC_train(ii):
 
         Sum_delay_per_episode = []  # 时延列表
 
-        last_actions = [None for _ in range(env.n_veh+1)]  # 存历史动作（上一时隙）
+        last_actions = []  # 存历史动作（上一时隙）
 
         eta1 = [] # 每步的资源浪费率
 
@@ -186,7 +186,7 @@ def SAC_train(ii):
             # 根据当前状态生成动作（通过SAC的策略网络）
             # 状态展平为一维数组输入网络，deterministic=False表示随机探索
             action = RL_SAC.policy_net.get_action(np.asarray(state_old_all).flatten(), deterministic=DETERMINISTIC,
-                                                  history_action=last_actions[time_slots.now()-1 if time_slots.now()!=0 else time_slots.now()])
+                                                  history_action=last_actions[time_slots.now()-1] if time_slots.now()!=0 else None)
             # 裁剪动作到[-0.999, 0.999]（避免极端值）
             action = np.clip(action, -0.999, 0.999)
             last_actions.append(action)
@@ -232,7 +232,7 @@ def SAC_train(ii):
             # 记录当前步的指标
             Sum_load_rate_0_episode.append(np.mean(load_rate_0))
             Sum_E_total_per_episode.append(np.sum(E_total))
-            Sum_reward_per_episode.append(np.sum(reward))
+            Sum_reward_per_episode.append(np.round(np.sum(reward)))
             Sum_calculate_per_episode.append(np.round(np.sum(comp_n_list)))
             Sum_overload_per_episode.append(overload)
             Sum_delay_per_episode.append(sum(Delay_vel))

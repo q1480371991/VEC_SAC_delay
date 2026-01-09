@@ -324,7 +324,7 @@ class SAC_Trainer():
 
         # 更新策略网络（最大化Q值减去alpha*对数概率，等价于最小化负的目标）
         predicted_new_q_value = torch.min(self.soft_q_net1(state, new_action), self.soft_q_net2(state, new_action))
-        policy_loss = (self.alpha * log_prob - predicted_new_q_value).mean()
+        policy_loss = (self.alpha * log_prob - predicted_new_q_value).mean()#log_prob 是负的
 
         self.policy_optimizer.zero_grad()
         policy_loss.backward()

@@ -16,11 +16,12 @@ def draw():
 
     # ======== 1. 对比的实验 ========
     runs = {
-        "origin": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251211_1711_熵正则B1e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251211_1711_熵正则B1e4/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251211_1836_熵正则B5e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251211_1836_熵正则B5e4/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251212_2123_熵正则A1e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251213_2244_熵正则A5e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
+        "纯噪声初始化": "./log/FDNSAC_纯噪声初始化/FDN_SAC_episode400_20251220_1739/FDN_SAC_data_0.pkl",
+        "原SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
+        # "熵正则B1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251211_1711_熵正则B1e4/FDN_SAC_data_0.pkl",
+        # "熵正则B5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251211_1836_熵正则B5e4/FDN_SAC_data_0.pkl",
+        "熵正则A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
+        "熵正则A5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
     }
     runsB = {
         "FDN_SAC_episode400_20251210_1731_熵正则B1e3": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251210_1731_熵正则B1e3/FDN_SAC_data_0.pkl",
@@ -29,13 +30,22 @@ def draw():
         "FDN_SAC_episode400_20251211_1836_熵正则B5e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251211_1836_熵正则B5e4/FDN_SAC_data_0.pkl",
     }
 
-    runsA = {
-        "FDN_SAC_episode400_20251211_2136_熵正则A5e3": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251211_2136_熵正则A5e3/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251210_1615_熵正则A1e3": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251210_1615_熵正则A1e3/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251212_1310_熵正则A1e2": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251212_1310_熵正则A1e2/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251212_2123_熵正则A1e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251213_2244_熵正则A5e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
+    runsD = {
+        # "A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251222_1845_熵正则A1e4/FDN_SAC_data_0.pkl",
+        "熵正则A5e3": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251211_2136_熵正则A5e3/FDN_SAC_data_0.pkl",
+        "熵正则A1e3": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251210_1615_熵正则A1e3/FDN_SAC_data_0.pkl",
+        "熵正则A1e2": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_1310_熵正则A1e2/FDN_SAC_data_0.pkl",
+        "熵正则A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
+        "熵正则A5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
     }
+
+    runs = {
+        "原SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
+        "TD3_episode400_20251230_124529": "./log/TD3/TD3_episode400_20251230_124529/TD3_data_0.pkl",
+        "TD3_episode400_20251230_140746": "./log/TD3/TD3_episode400_20251230_140746/TD3_data_0.pkl",
+        "TD3_episode400_20251230_184131": "./log/TD3/TD3_episode400_20251230_184131/TD3_data_0.pkl",
+    }
+
 
     # ======== 2. 指标及其对应的 key（注意这里用的是你自己定义的 Sum_xxx） ========
     metric_keys = {

@@ -324,14 +324,16 @@ class SAC_Trainer():
         )
 
         # A 方案：L2 正则作为熵代理
-        entropy_proxy = (x0_raw.pow(2).mean())  # 标量
+        entropy_proxy = (x0_raw.pow(2).mean())
 
-        # 或者 B 方案：动作方差
+        # 或者 B 方案：动作方差作为熵代理
         # entropy_proxy = new_action.var(dim=0, unbiased=False).mean()
 
-        lambda_entropy = 5e-4  # 近似熵系数，从 1e-3 开始试，若探索偏弱，逐步增加到 5e-3 或 1e-2；若训练不稳或动作发散，减小到 5e-4。
-        # policy_loss = (-predicted_new_q_value).mean() + lambda_entropy * entropy_proxy #近似熵正则
-        policy_loss = (-predicted_new_q_value).mean()
+        lambda_entropy = 1e-4  # 近似熵系数，从 1e-3 开始试，若探索偏弱，逐步增加到 5e-3 或 1e-2；若训练不稳或动作发散，减小到 5e-4。
+        s=lambda_entropy * entropy_proxy
+        # print(s.item())
+        policy_loss = (-predicted_new_q_value).mean() +lambda_entropy * entropy_proxy #近似熵正则
+        # policy_loss = (-predicted_new_q_value).mean()
 
         self.policy_optimizer.zero_grad()
         policy_loss.backward()
