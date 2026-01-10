@@ -26,13 +26,6 @@ from torch.distributions import Normal
 
 from policy_diffusion import DiffusionPolicyWrapper
 
-# from IPython.display import clear_output
-# import matplotlib.pyplot as plt
-# from matplotlib import animation
-# from IPython.display import display
-#
-# import argparse
-# import time
 
 GPU = False
 device_idx = 0

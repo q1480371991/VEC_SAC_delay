@@ -40,3 +40,10 @@ policy_noise = 0.2
 noise_clip = 0.5
 policy_delay = 2
 exploration_noise = 0.1  # 采样时在 actor 输出上加入的探索噪声（高斯）
+
+
+# FDN 扩散相关超参
+denoising_steps = 5
+t_dim = 16
+beta_schedule = 'vp'  # 'linear', 'cosine', 'vp'
+fdn_noise_scale = 1.0  # rollout 探索强度；评估时会置为 0

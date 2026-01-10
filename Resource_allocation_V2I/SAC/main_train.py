@@ -59,7 +59,7 @@ memory_size = 1000000# 经验回放缓冲区的最大容量
 
 n_step_per_episode = 100# 每轮训练的步数
 # n_episode_test = 3000  # 总训练轮数（大循环次数）
-n_episode_test = 5  #原论文为3000
+n_episode_test = 400  #
 n_interference_vehicle = 0# 干扰车辆数量（当前设置为0，无干扰）
 n_veh =5 # 车辆数量
 
@@ -184,15 +184,32 @@ def SAC_train(ii):
             action = RL_SAC.policy_net.get_action(np.asarray(state_old_all).flatten(), deterministic=DETERMINISTIC)
             # 裁剪动作到[-0.999, 0.999]（避免极端值）
             action = np.clip(action, -0.999, 0.999)
+
+            # --- 新增：RSU CPU 资源归一化处理 ---
+            # 1. 提取所有车辆的第3个动作（假设索引是 2, 5, 8... 即 i*3 + 2）
+            cpu_logits = []
+            for i in range(n_veh):
+                cpu_logits.append(action[i * 3 + 2])
+            cpu_logits = np.array(cpu_logits)
+
+            # 2. 映射到 [0, 1] 并归一化，确保和 <= 1
+            # 方法：先将 [-1, 1] 映射到 [0, 1]，再计算总和
+            cpu_ratios = (cpu_logits + 1) / 2
+            total_sum = np.sum(cpu_ratios)
+
+            if total_sum > 1.0:
+                cpu_ratios = cpu_ratios / total_sum  # 比例缩放，确保总和为 1
+
             action_all.append(action)
             # 将网络输出的归一化动作映射到实际物理范围
             for i in range(n_veh):
                 # 动作0：发射功率（映射到[min_power, max_power]）
-                action_all_training[i, 0] = ((action[0 + i * 2] + 1) / 2) * (max_power-min_power)+min_power
+                action_all_training[i, 0] = ((action[0 + i * 3] + 1) / 2) * (max_power-min_power)+min_power
                 # 动作1：计算频率（映射到[min_f, max_f]）
-                action_all_training[i, 1] = ((action[1 + i * 2] + 1) / 2) * (max_f-min_f)+min_f
+                action_all_training[i, 1] = ((action[1 + i * 3] + 1) / 2) * (max_f-min_f)+min_f
                 # 动作2：任务卸载比例（映射到[0, 1]）
-                action_all_training[i, 2] = (action[2 + i * 2] + 1) / 2
+                # action_all_training[i, 2] = (action[2 + i * 3] + 1) / 2
+                action_all_training[i, 2] = cpu_ratios[i]
             # 复制动作用于后续处理
             action_pf = action_all_training.copy()
             # 真实计算次数和理论计算次数（基于动作中的频率等参数）

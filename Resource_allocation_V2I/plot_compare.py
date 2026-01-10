@@ -40,10 +40,8 @@ def draw():
     }
 
     runs = {
-        "原SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
-        "TD3_episode400_20251230_124529": "./log/TD3/TD3_episode400_20251230_124529/TD3_data_0.pkl",
-        "TD3_episode400_20251230_140746": "./log/TD3/TD3_episode400_20251230_140746/TD3_data_0.pkl",
-        "TD3_episode400_20251230_184131": "./log/TD3/TD3_episode400_20251230_184131/TD3_data_0.pkl",
+        "SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
+        "改后SAC": "./log/SAC_episode400_20260110_1804/SAC_data_0.pkl",
     }
 
 

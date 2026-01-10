@@ -146,6 +146,8 @@ class Environ:
         self.vel_v = [] # 车辆速度列表
         self.V2I_channels_abs = []# V2I信道的幅度
 
+        self.V2I_abs_timeslos=[]#每一timeslots  各车辆的归一化信道幅度
+
         self.V2I_TransmissionRate=[]#车辆到RSU的传输速率(bps)
 
         self.beta_all = BetaAllocation(self.n_veh) # 实例化BetaAllocation，用于资源分配
@@ -517,7 +519,8 @@ class Environ:
         #源代码 不考虑时延
         # reward_tot = 10 * sum(E_total) + cf * sum(overload) + 0.01 * sum(self.ReplayB_v)
         # 总奖励计算：能量消耗惩罚 + 过载惩罚 + 剩余缓冲任务惩罚       +时延
-        reward_tot = 10*sum(E_total) + cf * sum(overload) + 0.01 * sum(self.ReplayB_v)+delay_penalty
+        # reward_tot = 10*sum(E_total) + cf * sum(overload) + 0.01 * sum(self.ReplayB_v)+delay_penalty
+        reward_tot = 10 * sum(E_total)  + 0.01 * sum(self.ReplayB_v) + delay_penalty
 
         # # 新增：将时延纳入奖励（惩罚大时延）
         # delay_penalty = 1 * sum(Delay_vel)  # 时延惩罚系数，可调整
@@ -533,10 +536,13 @@ class Environ:
         # 归一化信道幅度（除以总信道幅度）
         bb = sum(self.V2I_channels_abs) # 计算所有车辆的信道幅度总和
         V2I_abs= self.V2I_channels_abs/bb# 每个车辆的信道幅度除以总和，实现归一化
+        self.V2I_abs_timeslos.append(V2I_abs)
         # 归一化车辆速度（除以20）
-        vel_v = self.vel_v /20 # 每个车辆的速度除以20，将速度范围映射到 [0, 1] 附近
+        # vel_v = self.vel_v /20 # 每个车辆的速度除以20，将速度范围映射到 [0, 1] 附近
         # 拼接信道和速度特征作为状态
-        return np.concatenate((np.reshape(V2I_abs, -1), np.reshape(vel_v, -1)))
+        return np.concatenate((np.reshape(V2I_abs, -1),
+                               np.reshape(self.V2I_abs_timeslos[self.time_slots.now() - 1]if self.time_slots.now() != 0 else [0,0,0,0,0], -1)))
+
 
 
     def Compute_Performance_Reward_Train(self, action_pf, h_i_dB, vel_v, lambda_1, lambda_2):
