@@ -41,7 +41,8 @@ def draw():
 
     runs = {
         "SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
-        "改后SAC": "./log/SAC_episode400_20260110_1804/SAC_data_0.pkl",
+        "改后SAC1": "./log/SAC_episode400_20260110_1804/SAC_data_0.pkl",
+        "改后SAC2": "./log/SAC_episode400_20260110_2000/SAC_data_0.pkl",
     }
 
 

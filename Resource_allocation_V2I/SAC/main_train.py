@@ -217,7 +217,8 @@ def SAC_train(ii):
             # 计算RSU（路侧单元）可处理的任务量
             comp_n_list_RSU = env.calculate_num_RSU()
             # 更新缓冲区（用于记录任务队列状态）
-            env.update_buffer(comp_n_list)
+            diff = [a - b for a, b in zip(comp_n_list, comp_n_list_true)]
+            env.update_buffer(diff)
             # 计算每个车辆的卸载任务数（基于卸载比例和RSU处理能力）
             offload_num = []
             for i in range(n_veh):
@@ -232,7 +233,7 @@ def SAC_train(ii):
             #comp_n_list_true车辆在当前时间片内实际能处理的任务个数(单位：个)   offload_num每辆车计划卸载到 RSU（路侧单元）的任务数量(单位：个)
             E_total, reward_tot, overload, load_rate_0,Delay_vel  = env.RSU_reward1(action_pf, comp_n_list_true, trans_energy_RSU, offload_num)
             # 记录资源浪费率（资源浪费量/总任务量）
-            eta1.append(overload/sum(comp_n_list))
+            eta1.append(overload/sum(comp_n_list) if(sum(comp_n_list))!=0 else 0 )
             # 处理负载率为空的情况（默认设为1）
             if load_rate_0==[]:
                 load_rate_0 = np.ones(n_veh)

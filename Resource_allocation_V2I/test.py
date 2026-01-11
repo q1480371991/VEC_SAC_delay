@@ -125,16 +125,21 @@ def visualize_sampling_process():
 # visualize_sampling_process()
 
 if __name__ == "__main__":
-    t = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    import numpy as np
 
-    # 访问第一行
-    first_row = t[0]
-    print(f"\n第一行: {first_row}")  # 输出: tensor([1, 2, 3])
+    # 假设你的数组名为 action_all_training
+    action_all_training = np.array([
+        [1.40108032e+02, 6.71782400e+07, 9.14791703e-01],
+        [1.83384384e+02, 1.98752448e+08, 3.82214189e-02],
+        [1.24531765e+01, 1.53181216e+08, 8.04463625e-01],
+        [1.61870407e+02, 1.41389360e+08, 7.01797605e-01],
+        [1.41850540e+02, 3.40813952e+08, 5.14611781e-01]
+    ])
+    print(action_all_training[0,0])
+    print(action_all_training[1,0])
+    # 提取所有车辆的第 1 个动作 (发射功率)
+    first_actions = action_all_training[:, 0]
 
-    # 访问所有行和第二列
-    second_col = t[:, 1]
-    print(f"第二列: {second_col}")  # 输出: tensor([2, 5, 8])
-
-    # 访问右下角的 2x2 子矩阵
-    sub_matrix = t[1:, 1:]
-    print(f"右下角子矩阵:\n {sub_matrix}")
+    print("提取的一维数组为：")
+    print(first_actions)
+    print("数组形状:", first_actions.shape)

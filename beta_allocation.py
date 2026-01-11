@@ -21,7 +21,7 @@ class BetaAllocation:
         self.data_t = 0.02 # 数据传输时间（单位：s）
         self.k = 1e-27# 能量系数（与计算能耗相关）
         self.r_n = 1600# cycle/B 为处理单位大小的数据所需CPU周期数
-        self.D_n = 1500# 计算任务的数据量（单位：KB）
+        self.D_n = 15# 计算任务的数据量（单位：KB）
         self.q_tao = 0.2  # 可能为时间占空比参数
         self.bsAntGain = 8 # 基站天线增益（单位：dBi）
         self.bsNoiseFigure = 5# 基站噪声系数（单位：dB）
@@ -39,7 +39,7 @@ class BetaAllocation:
             random_value = random.uniform(0.05,1)
             T_true = random_value * self.T_n # 真实可用时间（单位：s）
             # 计算单次(circle)计算所需时间：总计算量（D_n * r_n）除以频率（p_f[i][1]）
-            T_comp = self.D_n * self.r_n /p_f[i][1]
+            T_comp = self.D_n *1024* self.r_n /p_f[i][1]
 
             # 理论计算次数：(总周期时间 - 数据传输时间) / 单次计算时间，取整
             num =round((self.T_n-self.data_t)/T_comp)
@@ -55,14 +55,14 @@ class BetaAllocation:
         # 计算RSU（路侧单元）的计算次数
         # RSU_f为RSU的计算频率
         # 公式：(总周期时间 - 数据传输时间) / (总计算量 / RSU频率)，取整
-        calculate_times_RSU = round((self.T_n-self.data_t)/(self.D_n * self.r_n /RSU_f))
+        calculate_times_RSU = round((self.T_n-self.data_t)/(self.D_n *1024* self.r_n /RSU_f))
         return calculate_times_RSU#返回RSU的计算次数
 
     def energy_RSU(self, RSU_f):
         # 计算RSU的计算能耗
         # 公式：能量系数 * 计算复杂度 * 数据量 * 频率的平方（经典的计算能耗模型）
-        E = self.k * self.D_n * self.r_n * RSU_f**2
-        return E
+        E = self.k * self.D_n *1024* self.r_n * RSU_f**2
+        return E #E的单位是J/cycle
 
     def trans_energy_RSU(self, p_f, h_i_dB, V2I_Interference):
         # 计算车辆到基础设施（V2I）的传输能耗
@@ -84,9 +84,9 @@ class BetaAllocation:
             #源码：self.Z+self.D_n D=11.2MB（模型大小）+1500KB  单位没有进行换算  好像也没有考虑卸载了多少数据，直接算所有数据的卸载能耗？ 而且不知道为什么要/车辆数量：B是总带宽，系统采用等带宽分配，所有车辆平均分配带宽
             # trans_energy_RSU[count] = p_f_1[0]*(self.Z+self.D_n) / self.B/len(trans_energy_RSU) / math.log(1 + V2I_Signals_W[count] / V2I_Interference, math.e)
 
-            #每辆车传输速率（bps）
-            V2I_TransmissionRate[count]=self.B/ len(trans_energy_RSU)*math.log(1 + V2I_Signals_W[count] / V2I_Interference, math.e)
-            trans_energy_RSU[count] = p_f_1[0]*(self.Z*1000+self.D_n) / V2I_TransmissionRate[count]
+            #每辆车传输速率（Bps）
+            V2I_TransmissionRate[count]=self.B/ len(trans_energy_RSU)*math.log(1 + V2I_Signals_W[count] / V2I_Interference, math.e)/8#bps转Bps
+            trans_energy_RSU[count] = p_f_1[0]*(self.Z*1024*1024+self.D_n*1024) / V2I_TransmissionRate[count]#算的不对，没有考虑卸载了多少数据，直接算所有数据的卸载能耗
 
             count += 1# 计数器递增
         return V2I_TransmissionRate,trans_energy_RSU# 返回每个车辆的传输能耗列表  顺便返回车辆到RSU的传输速率
@@ -98,9 +98,9 @@ class BetaAllocation:
         E_list = [] # 存储每个车辆的计算能耗
         for i in range(self.n_veh):
             # 公式：能量系数 * 计算复杂度 * 数据量 * 频率的平方（与RSU计算能耗模型一致）
-            E = self.k * self.D_n * self.r_n * pf[i][1] ** 2
+            E = self.k * self.D_n *1024* self.r_n * pf[i][1] ** 2
             E_list.append(E) # 添加到能耗列表
-        return E_list # 返回每个车辆的计算能耗列表
+        return E_list # 返回每个车辆的计算能耗列表  单位是单位是J/cycle
 
 
     # 时延计算
