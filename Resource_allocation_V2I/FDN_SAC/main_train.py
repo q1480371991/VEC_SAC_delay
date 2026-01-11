@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from Resource_allocation_V2I.SAC import dataStruct
+import dataStruct
 
 os.environ["KMP_DUPLICATE_LIB_OK"]='TRUE'
 import Environment3
