@@ -20,8 +20,8 @@ class BetaAllocation:
         self.T_n = 1 # 时间周期（单位：s）
         self.data_t = 0.02 # 数据传输时间（单位：s）
         self.k = 1e-27# 能量系数（与计算能耗相关）
-        self.r_n = 1600# cycle/B 为处理单位大小的数据所需CPU周期数
-        self.D_n = 15# 计算任务的数据量（单位：KB）
+        self.r_n = 1600# cycle/B 为处理单位大小的数据所需CPU周期数     可能是circle/b
+        self.D_n = 90# 计算任务的数据量（单位：KB）
         self.q_tao = 0.2  # 可能为时间占空比参数
         self.bsAntGain = 8 # 基站天线增益（单位：dBi）
         self.bsNoiseFigure = 5# 基站噪声系数（单位：dB）
@@ -52,16 +52,17 @@ class BetaAllocation:
 
 
     def calculate_times_RSU(self, RSU_f):
-        # 计算RSU（路侧单元）的计算次数
+        # 计算RSU（路侧单元）的计算次数circle
         # RSU_f为RSU的计算频率
         # 公式：(总周期时间 - 数据传输时间) / (总计算量 / RSU频率)，取整
         calculate_times_RSU = round((self.T_n-self.data_t)/(self.D_n *1024* self.r_n /RSU_f))
         return calculate_times_RSU#返回RSU的计算次数
 
-    def energy_RSU(self, RSU_f):
+    def E_per_cycle_RSU(self, RSU_f):
         # 计算RSU的计算能耗
         # 公式：能量系数 * 计算复杂度 * 数据量 * 频率的平方（经典的计算能耗模型）
-        E = self.k * self.D_n *1024* self.r_n * RSU_f**2
+        # E = self.k * self.D_n *1024* self.r_n * RSU_f**2
+        E = self.k * RSU_f**2
         return E #E的单位是J/cycle
 
     def trans_energy_RSU(self, p_f, h_i_dB, V2I_Interference):
@@ -92,13 +93,14 @@ class BetaAllocation:
         return V2I_TransmissionRate,trans_energy_RSU# 返回每个车辆的传输能耗列表  顺便返回车辆到RSU的传输速率
 
 
-    def single_comp_energy_vel(self,pf):
+    def single_energy_per_cycle_vel(self,pf):
         # 计算单个车辆的计算能耗
         # pf为包含功率和频率的列表，每个元素为[功率, 频率]
         E_list = [] # 存储每个车辆的计算能耗
         for i in range(self.n_veh):
             # 公式：能量系数 * 计算复杂度 * 数据量 * 频率的平方（与RSU计算能耗模型一致）
-            E = self.k * self.D_n *1024* self.r_n * pf[i][1] ** 2
+            # E = self.k * self.D_n *1024* self.r_n * pf[i][1] ** 2
+            E = self.k * pf[i][1] ** 2
             E_list.append(E) # 添加到能耗列表
         return E_list # 返回每个车辆的计算能耗列表  单位是单位是J/cycle
 

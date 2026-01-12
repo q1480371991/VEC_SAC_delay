@@ -42,3 +42,19 @@ policy_delay = 2
 exploration_noise = 0.1  # 采样时在 actor 输出上加入的探索噪声（高斯）
 
 
+# MATD3 开关
+ACTOR_SHARED = True                # 共享一个 Actor（True）或每智能体独立 Actor（False）
+REWARD_MODE = 'shared_global'      # 'shared_global' 或 'shared_from_per_agent' 或 'per_agent'（向量 Critic 时）
+CRITIC_VECTOR = False              # False: 标量 Q；True: 向量 Q（需搭配 REWARD_MODE='per_agent'）
+
+# 设备
+USE_GPU = True
+DEVICE_IDX = 0
+
+# 奖励权重（用于 'shared_from_per_agent' 或 'per_agent'）
+REWARD_WEIGHTS = {
+    'energy': 10.0,
+    'delay': 4000.0,
+    'overload': 1.0,   # 全局项
+    'buffer': 0.01,    # 全局项
+}

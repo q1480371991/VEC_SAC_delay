@@ -443,8 +443,8 @@ class Environ:
         """计算RSU的奖励值，考虑能量消耗、任务卸载效率等因素"""
         # 初始化总能量数组、RSU计算能量、车辆本地计算能量
         E_total = np.zeros(self.n_veh)
-        RSU_energy = self.beta_all.energy_RSU(self.RSU_f)# RSU单位计算能量  单位是J/cycle
-        E_single_energy_vel = self.beta_all.single_comp_energy_vel(action_pf) # 车辆本地计算能量  单位是J/cycle
+        E_per_cycle_RSU = self.beta_all.E_per_cycle_RSU(self.RSU_f)# RSU单位计算能量  单位是J/cycle
+        E_single_energy_percycle_vel = self.beta_all.single_energy_per_cycle_vel(action_pf) # 车辆本地计算能量  单位是J/cycle
         Delay_vel=np.zeros(self.n_veh)
 
         cf = 0# 过载惩罚系数
@@ -464,9 +464,9 @@ class Environ:
                 # 子情况1.1：剩余缓冲任务 > 本地可计算量
                 if self.ReplayB_v[i]>comp_n_list_true[i]:
                     # 能量 = 本地计算能量 + 传输能量 + RSU计算能量
-                    E_total[i] = comp_n_list_true[i] * E_single_energy_vel[i] \
+                    E_total[i] = comp_n_list_true[i] * E_single_energy_percycle_vel[i] \
                                  + uu*action_pf[i,0]*(offload_num[i]/self.beta_all.r_n+self.beta_all.Z*1024*1024)/self.V2I_TransmissionRate[i] \
-                                 + offload_num[i] * RSU_energy
+                                 + offload_num[i] * E_per_cycle_RSU
                     # 时延 = max(本地计算时间，卸载传输时间+RSU计算时间)  若offload_num[i]=0则不卸载，时延=本地计算时间
                     # 卸载传输时间=卸载任务circle/处理单位大小的数据所需CPU周期数=卸载任务数据量（单位KB）
                     trans_delay=(offload_num[i]/self.beta_all.r_n/1024+self.beta_all.D_n*1024)/(self.V2I_TransmissionRate[i])
@@ -478,9 +478,9 @@ class Environ:
                 # 子情况1.2：剩余缓冲任务 <= 本地可计算量
                 else:
                     # 能量 = RSU计算能量 + 传输能量 + 剩余任务本地计算能量
-                    E_total[i] = offload_num[i]* RSU_energy \
+                    E_total[i] = offload_num[i]* E_per_cycle_RSU \
                                  + uu*action_pf[i,0]*(offload_num[i]/self.beta_all.r_n+self.beta_all.Z*1024*1024)/self.V2I_TransmissionRate[i] \
-                                 + self.ReplayB_v[i]*E_single_energy_vel[i]
+                                 + self.ReplayB_v[i]*E_single_energy_percycle_vel[i]
                     # 时延
                     trans_delay = (offload_num[i] / self.beta_all.r_n/1024 + self.beta_all.D_n*1024) / (self.V2I_TransmissionRate[i])
                     caculate_local = self.ReplayB_v[i] / action_pf[i][1]
@@ -496,7 +496,7 @@ class Environ:
                 overload.append(offload_num[i] - self.ReplayB_v[i])# 计算资源浪费量
                 offload_num[i] = self.ReplayB_v[i]# 修正卸载量为缓冲池任务量
                 # 能量 = RSU计算能量 + 传输能量
-                E_total[i] = offload_num[i] * RSU_energy + uu*action_pf[i,0]*(offload_num[i]/self.beta_all.r_n+self.beta_all.Z*1024*1024)/self.V2I_TransmissionRate[i]
+                E_total[i] = offload_num[i] * E_per_cycle_RSU + uu*action_pf[i,0]*(offload_num[i]/self.beta_all.r_n+self.beta_all.Z*1024*1024)/self.V2I_TransmissionRate[i]
 
                 # 时延 没有本地计算
                 trans_delay = (offload_num[i] / self.beta_all.r_n/1024 + self.beta_all.D_n*1024) / (
@@ -524,7 +524,7 @@ class Environ:
         sum_Delay_vel=sum(Delay_vel)
         sum_E_total=sum(E_total)
         sum_ReplayB_v=sum(self.ReplayB_v)
-        reward_tot = 1 * sum_E_total  + 1 * sum_ReplayB_v + 4000*sum_Delay_vel
+        reward_tot = 1 * sum_E_total  + 1 * sum_ReplayB_v + 40000*sum_Delay_vel
 
         # # 新增：将时延纳入奖励（惩罚大时延）
         # delay_penalty = 1 * sum(Delay_vel)  # 时延惩罚系数，可调整

@@ -42,7 +42,7 @@ sig2=10**(sig1/10)# 噪声功率转换为线性值（W）
 q_tao = 0.5# 信道相干时间（秒）
 
 BS_position = [0, 0]# 基站坐标
-max_power = 200# 车辆最大发射功率（单位未明确，可能为mW）
+max_power = 200# 车辆最大发射功率（单位W）
 min_power = 5# 车辆最小发射功率
 max_f = 4e8# 最大计算频率（Hz）
 min_f = 5e7# 最小计算频率
@@ -107,7 +107,7 @@ def SAC_train(ii):
         参数ii：可能用于多组实验的标识（当前未使用）
     """
     # --------------model--------------
-    model_path = './model/SAC_episode'+str(n_episode_test)+"_"+current_time
+    model_path = './model/SAC_test_episode'+str(n_episode_test)+"_"+current_time
     os.makedirs(model_path, exist_ok=True)  # exist_ok=True表示目录存在时不报错
     # 初始化经验回放缓冲区
     replay_buffer = ReplayBuffer(replay_buffer_size)
@@ -217,8 +217,8 @@ def SAC_train(ii):
             # 计算RSU（路侧单元）可处理的任务量
             comp_n_list_RSU = env.calculate_num_RSU()
             # 更新缓冲区（用于记录任务队列状态）
-            diff = [a - b for a, b in zip(comp_n_list, comp_n_list_true)]
-            env.update_buffer(diff)
+            # diff = [a - b for a, b in zip(comp_n_list, comp_n_list_true)]
+            env.update_buffer(comp_n_list)
             # 计算每个车辆的卸载任务数（基于卸载比例和RSU处理能力）
             offload_num = []
             for i in range(n_veh):
@@ -530,7 +530,7 @@ if __name__ == "__main__":
 
 
     for i in range(1):
-        name = 'SAC'
+        name = 'SAC_test'
         # 初始化环境（传入车道参数、场景尺寸、车辆数量等）
         env = Environment3.Environ(down_lanes, up_lanes, left_lanes, right_lanes, width, height, n_veh, n_interference_vehicle, BS_width)
         # 初始化环境状态（随机生成车辆位置等）
