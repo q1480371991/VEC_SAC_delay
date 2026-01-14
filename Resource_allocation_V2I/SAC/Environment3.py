@@ -351,47 +351,35 @@ class Environ:
             vel_v = np.random.randint(10, 15)
             self.vehicles.append(Vehicle(start_position, start_direction, vel_v))
 
-    def overall_channel_vel_RSU(self):
-        """计算车辆与RSU之间的综合信道特性（包含路径损耗和阴影衰落）"""
-        # 初始化路径损耗、车辆速度、信道幅度数组
-        self.V2I_pathloss = np.zeros((len(self.vehicles)))#车辆速度
-        self.vel_v = np.zeros((len(self.vehicles)))#车辆速度
-        self.V2I_channels_abs = np.zeros((len(self.vehicles)))#信道幅度
-        # 生成阴影衰落（服从均值0、标准差8的正态分布）
-        self.V2I_Shadowing = np.random.normal(0, 8, len(self.vehicles))
-        # 遍历所有车辆计算路径损耗和速度
-        for i in range(len(self.vehicles)):  # 计算n辆车的路径损失
-            # 计算路径损耗（dB为单位）
-            self.V2I_pathloss[i] = self.V2Ichannels.get_path_loss(self.vehicles[i].start_position)
-            # 记录车辆速度
-            # self.vel_v[i] = self.vehicles[i].velocity
-        # 计算综合信道功率（W为单位）：路径损耗转换为线性功率
-        self.V2I_overall_W = 1/np.abs(1/np.power(10, self.V2I_pathloss / 10))  # W为单位
-        # 综合信道幅度（dB）：包含阴影衰落
-        '''self.V2I_overall_W = np.power(10, self.V2I_overall_dB / 10)'''
-        self.V2I_channels_abs = 10 * np.log10(self.V2I_overall_W)+self.V2I_Shadowing  #dB
-
-        return self.V2I_channels_abs
-
-    def overall_channel(self,now_timeslot):
+    def overall_channel(self, now_timeslot):
         """与overall_channel_vel_RSU功能完全相同，可能为冗余实现"""
         """计算车辆与RSU之间的综合信道特性（包含路径损耗和阴影衰落）"""
         # 初始化路径损耗、车辆速度、信道幅度数组
-        self.V2I_pathloss = np.zeros((len(self.vehicles)))# 路径损耗（dB）
-        self.vel_v = np.zeros((len(self.vehicles)))# 车辆速度
-        self.V2I_channels_abs = np.zeros((len(self.vehicles)))# 综合信道增益（dB）
+        self.V2I_pathloss = np.zeros((len(self.vehicles)))  # 路径损耗（dB）
+        self.vel_v = np.zeros((len(self.vehicles)))  # 车辆速度
+        self.V2I_channels_abs = np.zeros((len(self.vehicles)))  # 综合信道增益（dB）
         # 生成阴影衰落（服从均值0、标准差8dB的正态分布）
         self.V2I_Shadowing = np.random.normal(0, 8, len(self.vehicles))
         # 遍历所有车辆计算路径损耗和速度
         for i in range(len(self.vehicles)):  # 计算n辆车的路径损失
             # 计算路径损耗（dB为单位）
             self.V2I_pathloss[i] = self.V2Ichannels.get_path_loss(self.vehicles[i].get_vehicle_location(now_timeslot))
-            # 记录车辆速度
-            # self.vel_v[i] = self.vehicles[i].velocity
+            # 记录车辆速度  基于相邻时间槽的位置估计瞬时速度（m/s）
+            prev_t = max(now_timeslot - 1, 0)
+            loc_prev = self.vehicles[i].get_vehicle_location(prev_t)
+            loc_curr = self.vehicles[i].get_vehicle_location(now_timeslot)
+            if loc_prev is not None and loc_curr is not None and self.time_slots is not None:
+                delta_d = loc_prev.get_distance(loc_curr)  # 米
+                slot_len = self.time_slots.get_slot_length()  # 秒
+                self.vel_v[i] = delta_d / max(slot_len, 1)
+                self.vehicles[i].velocity = self.vel_v[i]
+            else:
+                self.vel_v[i] = 0.0
+                self.vehicles[i].velocity = self.vel_v[i]
         # 将路径损耗（dB）转换为线性功率衰减因子（W）
-        self.V2I_overall_W = 1/np.abs(1/np.power(10, self.V2I_pathloss / 10))  # W为单位
+        self.V2I_overall_W = 1 / np.abs(1 / np.power(10, self.V2I_pathloss / 10))  # W为单位
         # 综合路径损耗和阴影衰落，转换为dB单位的信道增益
-        self.V2I_channels_abs = 10 * np.log10(self.V2I_overall_W)+self.V2I_Shadowing  #dB
+        self.V2I_channels_abs = 10 * np.log10(self.V2I_overall_W) + self.V2I_Shadowing  # dB
 
         return self.V2I_channels_abs
 
@@ -530,18 +518,23 @@ class Environ:
 
         return E_total, reward_tot, sum(overload), rate_0,Delay_vel
 
-
     def get_state(self):
         """获取环境状态特征（用于强化学习）"""
         # 归一化信道幅度（除以总信道幅度）
-        bb = sum(self.V2I_channels_abs) # 计算所有车辆的信道幅度总和
-        V2I_abs= self.V2I_channels_abs/bb# 每个车辆的信道幅度除以总和，实现归一化
+        bb = sum(self.V2I_channels_abs)  # 计算所有车辆的信道幅度总和
+        V2I_abs = self.V2I_channels_abs / bb  # 每个车辆的信道幅度除以总和，实现归一化
+        # 方案1 上一s的V2I_abs作为state的第二维
         self.V2I_abs_timeslos.append(V2I_abs)
-        # 归一化车辆速度（除以20）
-        # vel_v = self.vel_v /20 # 每个车辆的速度除以20，将速度范围映射到 [0, 1] 附近
-        # 拼接信道和速度特征作为状态
+        V2I_abs_lastslot = self.V2I_abs_timeslos[self.time_slots.now() - 1] if self.time_slots.now() != 0 else [0, 0, 0,
+                                                                                                                0, 0]
+        # 方案2 车辆的v作为state的第二维
+        vehicle_v = self.vel_v
+
         return np.concatenate((np.reshape(V2I_abs, -1),
-                               np.reshape(self.V2I_abs_timeslos[self.time_slots.now() - 1]if self.time_slots.now() != 0 else [0,0,0,0,0], -1)))
+                                np.reshape(V2I_abs_lastslot, -1)))
+
+        #return np.concatenate((np.reshape(V2I_abs, -1),
+                              # np.reshape(vehicle_v, -1)))
 
 
 

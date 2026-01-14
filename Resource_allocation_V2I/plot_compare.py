@@ -23,28 +23,17 @@ def draw():
         "熵正则A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
         "熵正则A5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
     }
-    runsB = {
-        "FDN_SAC_episode400_20251210_1731_熵正则B1e3": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251210_1731_熵正则B1e3/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251210_2331_熵正则B1e3": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251210_2331_熵正则B1e3/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251211_1711_熵正则B1e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251211_1711_熵正则B1e4/FDN_SAC_data_0.pkl",
-        "FDN_SAC_episode400_20251211_1836_熵正则B5e4": "./log/FDNSAC_用历史动作初始化_未反映射_熵正则/FDN_SAC_episode400_20251211_1836_熵正则B5e4/FDN_SAC_data_0.pkl",
-    }
-
-    runsD = {
-        # "A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251222_1845_熵正则A1e4/FDN_SAC_data_0.pkl",
-        "熵正则A5e3": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251211_2136_熵正则A5e3/FDN_SAC_data_0.pkl",
-        "熵正则A1e3": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251210_1615_熵正则A1e3/FDN_SAC_data_0.pkl",
-        "熵正则A1e2": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_1310_熵正则A1e2/FDN_SAC_data_0.pkl",
-        "熵正则A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
-        "熵正则A5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
-    }
-
     runs = {
         "SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
-        "改后SAC1": "./log/SAC_episode400_20260110_1804/SAC_data_0.pkl",
-        "改后SAC2": "./log/SAC_episode400_20260110_2000/SAC_data_0.pkl",
+        "SAC_new_i1": "./log/SAC_new/SAC_i_episode400_20260112_2342/SAC_data_0.pkl",
     }
-
+    runs = {
+        "MATD3": "./log/MATD3/MATD3_episode400_20260112_183343/MATD3_data_0.pkl",
+        "SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
+        "Rand": "./log/Rand/Rand_episode400_20260114_134635/Rand_data_0.pkl",
+        # "DMO": "./log/DMO/DMO_episode400_20260114_000433/DMO_data_0.pkl",
+        "SA": "./log/SA/SA_episode400_20260114_153221/SA_data_0.pkl",
+    }
 
     # ======== 2. 指标及其对应的 key（注意这里用的是你自己定义的 Sum_xxx） ========
     metric_keys = {
@@ -52,7 +41,7 @@ def draw():
         "时延 (delay)": "Sum_delay",
         "能耗 (E_total)": "Sum_E_total",
         "卸载率 (load_rate_0)": "Sum_load_rate_0",
-        "过载率 (eta1)": "Sum_eta1"
+        "资源浪费率 (eta1)": "Sum_eta1"
     }
 
     # ======== 3. 读取所有 pkl ========
