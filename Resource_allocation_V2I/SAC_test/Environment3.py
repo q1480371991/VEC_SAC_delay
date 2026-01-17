@@ -7,9 +7,8 @@ import numpy as np
 import random
 import math
 import dataStruct
-
 from beta_allocation import BetaAllocation
-
+import main_train
 """Time slot related."""
 time_slot_start: int = 0
 time_slot_end: int = 299
@@ -17,11 +16,11 @@ time_slot_number: int = 300
 time_slot_length: int = 1
 
 """Vehicle related."""
-vehicle_number: Optional[int] = 5
+vehicle_number: Optional[int] = main_train.n_veh
 trajectories_file_name: str = '../CSV/trajectories_20161116_2300_2305'
 task_request_rate: float = 1
 vehicle_seeds: List[int] = dataclasses.field(default_factory=list)
-vehicle_seeds = [i for i in range(5)]
+vehicle_seeds = [i for i in range(vehicle_number)]
 
 """Task related."""
 task_number: int = 100

@@ -46,7 +46,7 @@ PERTURB_SCALE = 0.1  # 扰动幅度 (归一化范围的比例)
 
 # 日志路径
 current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-log_base = f'../log/SA_episode{n_episode_test}_{current_time}'
+log_base = f'../log/SA_numv{n_veh}_episode{n_episode_test}_{current_time}'
 os.makedirs(log_base, exist_ok=True)
 
 
@@ -135,7 +135,7 @@ class SASolver:
 # -------------------------- 主逻辑 --------------------------
 def save_results(name, index, E_total, reward, calculate, overload, eta1, load_rate_0, delay):
     """日志绘图逻辑，沿用现有结构"""
-    log_dir = f'../log/{name}_episode{n_episode_test}_{current_time}'
+    log_dir = f'../log/{name}_numv{n_veh}_episode{n_episode_test}_{current_time}'
     os.makedirs(log_dir, exist_ok=True)
     data = {
         'Sum_E_total': E_total, 'Sum_reward': reward, 'Sum_calculate': calculate,

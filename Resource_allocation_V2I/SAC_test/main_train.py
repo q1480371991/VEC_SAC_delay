@@ -310,7 +310,7 @@ def save_results(name, index, E_total, reward, calculate, overload, eta1, load_r
     :param delay: 每轮时延列表
     """
     # 创建保存目录（如log/SAC_1/）
-    log_dir = f'../log/{name}_episode{n_episode_test}_{current_time}'
+    log_dir = f'../log/{name}_numv{n_veh}_episode{n_episode_test}_{current_time}'
     os.makedirs(log_dir, exist_ok=True)
 
     # 设置中文字体 使用 SimHei 黑体（系统中有）

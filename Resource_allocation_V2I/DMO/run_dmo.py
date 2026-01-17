@@ -46,7 +46,7 @@ n_episode_test = 5  # DMO 比较慢，测试轮数可以少一点，或者保持
 # 创建日志路径 (沿用现有结构)
 current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
 # 注意：这里名字改为 DMO
-log_base = f'../log/DMO_episode{n_episode_test}_{current_time}'
+log_base = f'../log/DMO_numv{n_veh}_episode{n_episode_test}_{current_time}'
 os.makedirs(log_base, exist_ok=True)
 
 # 构造动作边界 (n_veh * 3)
@@ -69,7 +69,7 @@ dmo_solver = DMOSolver(
 
 # 复用你的 save_results 函数 (完全复制过来)
 def save_results(name, index, E_total, reward, calculate, overload, eta1, load_rate_0, delay ,elapsed_list):
-    log_dir = f'../log/{name}_episode{n_episode_test}_{current_time}'
+    log_dir = f'../log/{name}_numv{n_veh}_episode{n_episode_test}_{current_time}'
     os.makedirs(log_dir, exist_ok=True)
     data = {
         'Sum_E_total': E_total,

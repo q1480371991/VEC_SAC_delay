@@ -17,22 +17,43 @@ def draw():
     # ======== 1. 对比的实验 ========
     runs = {
         "纯噪声初始化": "./log/FDNSAC_纯噪声初始化/FDN_SAC_episode400_20251220_1739/FDN_SAC_data_0.pkl",
-        "原SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
+        "原SAC": "./log/origin/SAC_numv5_0_episode400_delay4000/SAC_data_0.pkl",
         # "熵正则B1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251211_1711_熵正则B1e4/FDN_SAC_data_0.pkl",
         # "熵正则B5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251211_1836_熵正则B5e4/FDN_SAC_data_0.pkl",
         "熵正则A1e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_2123_熵正则A1e4/FDN_SAC_data_0.pkl",
         "熵正则A5e4": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
     }
     runs = {
-        "SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
+        "SAC": "./log/origin/SAC_numv5_0_episode400_delay4000/SAC_data_0.pkl",
         "SAC_new_i1": "./log/SAC_new/SAC_i_episode400_20260112_2342/SAC_data_0.pkl",
     }
     runs = {
-        "MATD3": "./log/MATD3/MATD3_episode400_20260112_183343/MATD3_data_0.pkl",
-        "SAC": "./log/origin/SAC_0_episode400_delay4000/SAC_data_0.pkl",
-        "Rand": "./log/Rand/Rand_episode400_20260114_134635/Rand_data_0.pkl",
-        # "DMO": "./log/DMO/DMO_episode400_20260114_000433/DMO_data_0.pkl",
-        "SA": "./log/SA/SA_episode400_20260114_153221/SA_data_0.pkl",
+        # "MATD3_GRU1": "./log/MATD3/MATD3_numv5_test_episode400_20260114_173129/MATD3_test_data_0.pkl",
+        # "MATD3_GRU2": "./log/MATD3/MATD3_numv5_test_episode400_20260114_193758/MATD3_test_data_0.pkl",
+        "MATD3": "./log/MATD3/MATD3_numv5_episode400_20260112_183343/MATD3_data_0.pkl",
+        "SAC": "./log/origin/SAC_numv5_0_episode400_delay4000/SAC_data_0.pkl",
+        # "SAC_FDN": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251213_2244_熵正则A5e4/FDN_SAC_data_0.pkl",
+        "Rand": "./log/Rand/Rand_numv5_episode400_20260114_134635/Rand_data_0.pkl",
+        # "DMO": "./log/DMO/DMO_numv5_episode400_20260114_000433/DMO_data_0.pkl",
+        "SA": "./log/SA/SA_numv5_episode400_20260114_153221/SA_data_0.pkl",
+    }
+
+    runs = {#论文实验图
+        # "MATD3_GRU1": "./log/MATD3/MATD3_numv5_test_episode400_20260114_173129/MATD3_test_data_0.pkl",#GRU1
+        # "MATD3_GRU2": "./log/MATD3/MATD3_numv5_test_episode400_20260114_193758/MATD3_test_data_0.pkl",#GRU2
+        # "MATD3": "./log/MATD3/MATD3_numv5_episode400_20260112_183343/MATD3_data_0.pkl",#无GRU
+        "GRU_MATD3": "./log/MATD3/MATD3_numv5_test_episode400_20260114_193758/MATD3_test_data_0.pkl",
+        "SAC": "./log/origin/SAC_numv5_0_episode400_delay4000/SAC_data_0.pkl",
+        "SAC_FDN": "./log/FDNSAC_用历史动作初始化_熵正则/FDN_SAC_episode400_20251212_1310_熵正则A1e2/FDN_SAC_data_0.pkl",
+        "Rand": "./log/Rand/Rand_numv5_episode400_20260114_134635/Rand_data_0.pkl",
+        "DMO": "./log/DMO/DMO_numv5_episode400_20260114_000433/DMO_data_0.pkl",
+        "SA": "./log/SA/SA_numv5_episode400_20260114_153221/SA_data_0.pkl",
+    }
+
+    runs = {
+        "MATD3": "./log/MATD3/MATD3_numv5_episode400_20260112_183343/MATD3_data_0.pkl",
+        "MATD3_test1": "./log/MATD3/MATD3_numv5_test_episode400_20260114_173129/MATD3_test_data_0.pkl",
+        "MATD3_test2": "./log/MATD3/MATD3_numv5_test_episode400_20260114_193758/MATD3_test_data_0.pkl",
     }
 
     # ======== 2. 指标及其对应的 key（注意这里用的是你自己定义的 Sum_xxx） ========
